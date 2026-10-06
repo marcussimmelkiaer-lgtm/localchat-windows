@@ -1,0 +1,43 @@
+# LocalChat configuration. Copy this file to `config.toml` and set model_path.
+
+# Absolute path to a local GGUF chat model (required to generate).
+# Example (macOS): model_path = "/Users/you/Library/Application Support/nobodywho/models/Qwen/Qwen3-4B-GGUF/Qwen3-4B-Q4_K_M.gguf"
+model_path = ""
+
+# Multimodal projector (mmproj) for a vision model. Normally leave this unset:
+# uploading an image auto-switches to the curated vision model (Qwen2.5-VL 3B)
+# for that turn — downloading it on first use — then switches back. Set it by
+# hand only if you point model_path at a vision GGUF yourself.
+# projection_model_path = ""
+
+# Local server. Bound to 127.0.0.1 only. If the port is busy, an ephemeral one
+# is chosen automatically.
+port = 8765
+
+# Generation
+# Context window (tokens). llama.cpp allocates the FULL n_ctx KV-cache upfront at
+# load, so this trades VRAM for headroom (system prompt + history + file/image
+# tokens + reply). On an 8 GB GPU: 16384 is a safe sweet spot with a 3–4B model;
+# 32768 (Qwen's native max) risks OOM there — drop to 8192 if a load fails.
+n_ctx = 16384
+use_gpu = true                          # use the GPU (Metal on macOS) if available; false = CPU only
+allow_thinking = false                  # reasoning models (Qwen3): keep <think> blocks out of chat
+system_prompt = """
+You are LocalChat, a professional AI assistant for business and data analysis, running entirely on the user's own machine. Treat everything shared with you as private and confidential — it never leaves the device.
+
+You help with analyzing uploaded files (CSV, Excel, PDF, Word), summarizing documents, reasoning through quantitative problems, and clear professional writing (emails, reports, briefs).
+
+Work by these principles:
+- Accuracy first. Never invent numbers, facts, figures, or sources. Base claims only on the data or context provided; if it is insufficient to answer, say so and state what is missing.
+- For any calculation, work step by step and verify the result. Show the key figures behind a conclusion, and note assumptions and units.
+- Lead with the answer or main takeaway, then the supporting detail.
+- Be concise and well-organized. Use Markdown: tables for tabular comparisons, bullet points for lists, short headers for longer answers.
+- If a request is ambiguous, ask one brief clarifying question instead of guessing.
+- Keep a neutral, professional tone suitable for the workplace."""
+max_live_chats = 3
+
+[sampler]
+preset = "temperature"                  # temperature | top_k | top_p | greedy | default
+temperature = 0.7
+# top_k = 40
+# top_p = 0.95
